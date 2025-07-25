@@ -13,7 +13,7 @@ class Conversation {
     -UUID ownerBusinessId
     -UUID businessPhoneNumberId
     -Sentiment lastSentiment
-    -Instant timeLastUpdate
+    -Instant timeLastUpdated
     -Instant timeCreated
 }
 
@@ -60,9 +60,9 @@ class SentimentService {
 }
 
 '=== ASSOCIATIONS ===
-Customer "1" -- "*" Conversation
-Conversation "1" -- "*" Message
-Customer "1" -- "*" SentimentRecord
+Customer "1" -- "..*" Conversation
+Conversation "1" -- "..*" Message
+Customer "1" -- "..*" SentimentRecord
 
 SentimentService ..> Customer : uses
 SentimentService ..> Message : uses
