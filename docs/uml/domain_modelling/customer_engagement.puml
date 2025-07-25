@@ -1,0 +1,72 @@
+@startuml
+title Customer engagement domain
+
+' === ENTITY CLASSES ===
+class Customer {
+    -UUID ownerBusinessId
+    -String name
+    -PhoneNumber phoneNumber
+    -Instant timeCreated
+}
+
+class Conversation {
+    -UUID ownerBusinessId
+    -UUID businessPhoneNumberId
+    -Sentiment lastSentiment
+    -Instant timeLastUpdate
+    -Instant timeCreated
+}
+
+class Message {
+    -UUID ownerBusinessId
+    -String messageContent
+    -Sentiment messageSentiment
+    -Instant timeCreated
+}
+
+class SentimentRecord {
+    -UUID ownerBusinessId
+    -UUID messageId
+    -UUID conversationId
+    -Label label
+    -Instant timeCreated
+}
+
+'=== VALUE OBJECTS ===
+class PhoneNumber {
+    -String phoneNumber
+    -Boolean validate(String phoneNumber)
+    {static}+PhoneNumber create(String phoneNumber)_
+}
+
+class Label {
+    -LabelType value
+    +Label create(String input)
+    +boolean isValid(String input)
+    +String getLabel()
+}
+
+enum LabelType {
+    POSITIVE_FEEDBACK
+    NEGATIVE_FEEDBACK
+    COMPLAINT
+    GENERAL_INQUIRY
+    PURCHASE_INTENT
+}
+
+' === DOMAIN SERVICE ===
+class SentimentService {
+    +void recordSentimentChange(UUID ownerBusinessId, UUID customerId, UUID conversationId, UUID messageId)
+}
+
+'=== ASSOCIATIONS ===
+Customer "1" -- "*" Conversation
+Conversation "1" -- "*" Message
+Customer "1" -- "*" SentimentRecord
+
+SentimentService ..> Customer : uses
+SentimentService ..> Message : uses
+SentimentService ..> SentimentRecord : creates
+SentimentService ..> Conversation : updates
+
+@enduml
