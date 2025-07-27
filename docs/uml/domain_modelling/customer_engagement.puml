@@ -11,25 +11,36 @@ class Customer {
 
 class Conversation {
     -UUID ownerBusinessId
+    -Customer customer
     -UUID businessPhoneNumberId
-    -Sentiment lastSentiment
+    -Label lastLabel
     -Instant timeLastUpdated
     -Instant timeCreated
 }
 
 class Message {
     -UUID ownerBusinessId
+    -Conversation conversation
     -String messageContent
-    -Sentiment messageSentiment
+    -MessageDirection
+    -Label messageLabel
     -Instant timeCreated
 }
 
 class SentimentRecord {
     -UUID ownerBusinessId
-    -UUID messageId
-    -UUID conversationId
+    -Customer customer
+    -Message message
     -Label label
     -Instant timeCreated
+}
+
+class DailyActivity {
+    -UUID ownerBusinessId
+    -Int numOfConversations
+    -Int numIncomingMessages
+    -Int numOutgoingMessages
+    -Date date
 }
 
 '=== VALUE OBJECTS ===
@@ -54,19 +65,36 @@ enum LabelType {
     PURCHASE_INTENT
 }
 
+class MessageDirection {
+    -MessageDirectionVariant value
+    -MessageDirectionVariant validate(String direction)
+    {static}+MessageDirection create(String direction)
+}
+
+enum MessageDirectionVariant {
+    INCOMING
+    OUTGOING
+}
+
 ' === DOMAIN SERVICE ===
 class SentimentService {
     +void recordSentimentChange(UUID ownerBusinessId, UUID customerId, UUID conversationId, UUID messageId)
 }
 
 '=== ASSOCIATIONS ===
-Customer "1" -- "..*" Conversation
-Conversation "1" -- "..*" Message
-Customer "1" -- "..*" SentimentRecord
+Customer "1" -- "..*" Conversation: as customer
+Conversation "1" -- "..*" Message: as conversation
+Customer "1" -- "..*" SentimentRecord: as customer
+Message "1" -- "1" SentimentRecord: as message
 
-SentimentService ..> Customer : uses
-SentimentService ..> Message : uses
-SentimentService ..> SentimentRecord : creates
-SentimentService ..> Conversation : updates
+'=== EXTERNAL ENTITIES ===
+class BusinessAccount {
+    <<external>>
+    -UUID id
+}
+
+note right of BusinessAccount::id
+this is ownerBusinessId
+end note
 
 @enduml
