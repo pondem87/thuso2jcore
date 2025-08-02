@@ -1,0 +1,113 @@
+@startuml
+
+'=== ENITIES ===
+class Product {
+    -UUID ownerBusinessId
+    -String name
+    -String shortDescription
+    -String fullDescription
+    -String unitSold
+    -Int stockAvailable
+    -Media[] media
+    -Order[] orders
+    -Review[] reviews
+    -Instant timeCreated
+    -Instant timeUpdated
+}
+
+class Media {
+    -UUID ownerBusinessId
+    -String fileName
+    -String s3key
+    -String description
+    -MediaType mediaType
+    -Instant timeCreated
+}
+
+class Order {
+    -UUID ownerBusinessId
+    -UUID customerId
+    -Product product
+    -Int quantity
+    -OrderStatus status
+    -Instant timeCreated
+    -Instant timeUpdated
+}
+
+class Views {
+    -UUID ownerBusinessId
+    -UUID customerId
+    -Product product
+    -Int numberOfViews
+    -Instant timeCreated
+    -Instant timeUpdated
+}
+
+note right of Views::numberOfViews
+aggregated per
+customer
+and product
+end note
+
+class Review {
+    -UUID ownerBusinessId
+    -UUID customerId
+    -Product product
+    -Rating rating
+    -String comment
+    -Instant timeCreated
+    -Instant timeUpdated
+}
+
+'=== VALUE OBJECTS ===
+class MediaType {
+    -String value
+    -String validate(String mediaType)
+    {static}+MediaType create(String mediaType)
+}
+
+class OrderStatus {
+    -OrderStatusVariant value
+    -OrderStatusVariant validate(String status)
+    {static}+OrderStatus create(String status)
+}
+
+Enum OrderStatusVariant {
+    ORDER_PLACED
+    ORDER_PAID
+    ORDER_SHIPPED
+    ORDER_RECEIVED
+}
+
+class Rating {
+    -Int value
+    -Int validate(Int rating)
+    {static}+Rating create(Int rating)
+}
+
+'=== ASSOCIATIONS ===
+Product "1" *-- "..*" Media : as media
+Product "1" -- "..*" Order : as orders
+Product "1" --  "*" Views : as product
+Product "1" -- "..*" Review : as reviews
+
+'=== EXTERNAL ENTITIES ===
+class BusinessAccount {
+    <<external>>
+    -UUID id
+}
+
+note right of BusinessAccount::id
+this is ownerBusinessId
+end note
+
+class Customer {
+    <<external>>
+    -UUID id
+}
+
+note right of Customer::id
+this is customerId
+end note
+
+@enduml
